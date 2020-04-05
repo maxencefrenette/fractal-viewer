@@ -1,10 +1,20 @@
-import React, { useLayoutEffect, useState } from 'react';
+import React, { useLayoutEffect, useState, useEffect } from 'react';
 import raw from 'raw.macro';
 
 const vertexShaderSource = raw('./vertex-shader.glsl');
 const fragmentShaderSource = raw('./fragment-shader.glsl');
 
 function App() {
+    const [canvasWidth, setCanvasWidth] = useState(window.innerWidth);
+    const [canvasHeight, setCanvasHeight] = useState(window.innerHeight);
+
+    useEffect(() => {
+        window.onresize = () => {
+            setCanvasWidth(window.innerWidth);
+            setCanvasHeight(window.innerHeight);
+        };
+    });
+
     const canvas = React.createRef<HTMLCanvasElement>();
 
     const [gl, setGl] = useState<WebGLRenderingContext | null>(null);
@@ -19,62 +29,63 @@ function App() {
         max_iterations: 500,
     });
 
-    useLayoutEffect(() => {
-        const gl = canvas.current?.getContext('webgl');
-        if (!gl) throw new Error("Couldn't get canvas context");
+    useLayoutEffect(
+        () => {
+            const gl = canvas.current?.getContext('webgl');
+            if (!gl) throw new Error("Couldn't get canvas context");
 
-        // Compile and link shaders
-        const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
-        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
-        gl.shaderSource(vertexShader, vertexShaderSource);
-        gl.shaderSource(fragmentShader, fragmentShaderSource);
-        gl.compileShader(vertexShader);
-        console.log(gl.getShaderInfoLog(vertexShader));
-        gl.compileShader(fragmentShader);
-        console.log(gl.getShaderInfoLog(fragmentShader));
-        var program = gl.createProgram()!;
-        gl.attachShader(program, vertexShader);
-        gl.attachShader(program, fragmentShader);
-        gl.linkProgram(program);
-        gl.useProgram(program);
+            // Compile and link shaders
+            const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+            const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+            gl.shaderSource(vertexShader, vertexShaderSource);
+            gl.shaderSource(fragmentShader, fragmentShaderSource);
+            gl.compileShader(vertexShader);
+            console.log(gl.getShaderInfoLog(vertexShader));
+            gl.compileShader(fragmentShader);
+            console.log(gl.getShaderInfoLog(fragmentShader));
+            var program = gl.createProgram()!;
+            gl.attachShader(program, vertexShader);
+            gl.attachShader(program, fragmentShader);
+            gl.linkProgram(program);
+            gl.useProgram(program);
 
-        // Create a vertex buffer for a full-screen triangle
-        var vertexBuf = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuf);
-        gl.bufferData(
-            gl.ARRAY_BUFFER,
-            new Float32Array([-1, -1, 3, -1, -1, 3]),
-            gl.STATIC_DRAW
-        );
+            // Create a vertex buffer for a full-screen triangle
+            var vertexBuf = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuf);
+            gl.bufferData(
+                gl.ARRAY_BUFFER,
+                new Float32Array([-1, -1, 3, -1, -1, 3]),
+                gl.STATIC_DRAW
+            );
 
-        // Set up the position attribute
-        var position_attrib_location = gl.getAttribLocation(
-            program,
-            'a_Position'
-        );
-        gl.enableVertexAttribArray(position_attrib_location);
-        gl.vertexAttribPointer(
-            position_attrib_location,
-            2,
-            gl.FLOAT,
-            false,
-            0,
-            0
-        );
+            // Set up the position attribute
+            var position_attrib_location = gl.getAttribLocation(
+                program,
+                'a_Position'
+            );
+            gl.enableVertexAttribArray(position_attrib_location);
+            gl.vertexAttribPointer(
+                position_attrib_location,
+                2,
+                gl.FLOAT,
+                false,
+                0,
+                0
+            );
 
-        setGl(gl);
-        setProgram(program);
-    }, [/* Empty dependency array to only run the hook once */]);
+            setGl(gl);
+            setProgram(program);
+        },
+        [
+            /* Empty dependency array to only run the hook once */
+        ]
+    );
 
     useLayoutEffect(() => {
         if (!gl) return;
         if (!program) return;
 
-        let {
-            zoom_center,
-            zoom_size,
-            max_iterations,
-        } = camera;
+        let { zoom_center, zoom_size, max_iterations } = camera;
 
         var zoom_center_uniform = gl.getUniformLocation(
             program,
@@ -114,16 +125,10 @@ function App() {
         //     max_iterations += 10;
         //     // window.requestAnimationFrame(renderFrame);
         // }
-    }, [gl, program, camera]);
+    }, [gl, program, camera, canvasWidth, canvasHeight]);
 
     return (
-        <div>
-            <canvas
-                width={window.innerWidth}
-                height={window.innerHeight}
-                ref={canvas}
-            ></canvas>
-        </div>
+        <canvas width={canvasWidth} height={canvasHeight} ref={canvas}></canvas>
     );
 }
 
