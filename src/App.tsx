@@ -22,11 +22,7 @@ function App() {
 
     const [camera, setCamera] = useState({
         zoom_center: [0.0, 0.0],
-        target_zoom_center: [0.0, 0.0],
         zoom_size: 4.0,
-        stop_zooming: true,
-        zoom_factor: 1.0,
-        max_iterations: 500,
     });
 
     useLayoutEffect(
@@ -85,22 +81,17 @@ function App() {
         if (!gl) return;
         if (!program) return;
 
-        const { zoom_center, zoom_size, max_iterations } = camera;
+        const { zoom_center, zoom_size } = camera;
 
         const zoom_center_uniform = gl.getUniformLocation(
             program,
             'u_zoomCenter'
         );
         const zoom_size_uniform = gl.getUniformLocation(program, 'u_zoomSize');
-        const max_iterations_uniform = gl.getUniformLocation(
-            program,
-            'u_maxIterations'
-        );
 
         // Bind inputs & render frame
         gl.uniform2f(zoom_center_uniform, zoom_center[0], zoom_center[1]);
         gl.uniform1f(zoom_size_uniform, zoom_size);
-        gl.uniform1i(max_iterations_uniform, max_iterations);
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
