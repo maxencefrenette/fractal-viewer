@@ -1,8 +1,8 @@
 import React, { useLayoutEffect, useState, useEffect } from 'react';
 import raw from 'raw.macro';
 
-const vertexShaderSource = raw('./vertex-shader.glsl');
-const fragmentShaderSource = raw('./fragment-shader.glsl');
+const vertexShaderSource = raw('./vertex-shader.vert');
+const fragmentShaderSource = raw('./fragment-shader.frag');
 
 function App() {
     const [canvasWidth, setCanvasWidth] = useState(window.innerWidth);
