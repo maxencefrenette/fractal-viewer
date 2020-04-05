@@ -1,24 +1,21 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useLayoutEffect } from 'react';
 
 function App() {
+  const canvas = React.createRef<HTMLCanvasElement>();
+
+  useLayoutEffect(() => {
+    const ctx = canvas.current?.getContext("2d");
+
+    if (!ctx) {
+      throw new Error("Couldn't get canvas context");
+    }
+
+    ctx.fillRect(100, 100, 100, 100)
+  }, [canvas])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      <canvas width={window.innerWidth} height={window.innerHeight} ref={canvas}></canvas>
     </div>
   );
 }
