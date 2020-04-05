@@ -2,11 +2,24 @@ precision highp float;
 
 const int maxIterations = 500;
 
+// min(viewportWidth, viewportHeight)
+uniform float viewportSize;
+
+// The coordinates (in the fractal's coordinate space) of the camera center
 uniform vec2 cameraCenter;
+
+// The zoom ratio
 uniform float zoom;
 
+// The Maldelbrot iteration function
 vec2 f(vec2 x, vec2 c) {
 	return mat2(x,-x.y,x.x)*x + c;
+}
+
+// Converts from the viewport space to the fractal space
+vec2 viewportToFractal(vec2 viewportCoord) {
+  vec2 uv = viewportCoord / viewportSize;
+  return cameraCenter + (uv - vec2(0.5)) * zoom;
 }
 
 vec3 palette(float t, vec3 a, vec3 b, vec3 c, vec3 d) {
@@ -14,8 +27,7 @@ vec3 palette(float t, vec3 a, vec3 b, vec3 c, vec3 d) {
 }
 
 void main() {
-  vec2 uv = gl_FragCoord.xy / vec2(800.0, 800.0);
-  vec2 c = cameraCenter + (uv * 4.0 - vec2(2.0)) * (zoom / 4.0);
+  vec2 c = viewportToFractal(gl_FragCoord.xy);
   vec2 x = vec2(0.0);
   bool escaped = false;
   int iterations = 0;    
