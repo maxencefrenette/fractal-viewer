@@ -88,27 +88,6 @@ function App() {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
-
-        // /* handle zoom */
-        // if (!stop_zooming) {
-        //     /* zooming in progress */
-        //     /* gradually decrease number of iterations, reducing detail, to speed up rendering */
-        //     max_iterations -= 10;
-        //     if (max_iterations < 50) max_iterations = 50;
-
-        //     /* zoom in */
-        //     zoom_size *= zoom_factor;
-
-        //     /* move zoom center towards target */
-        //     zoom_center[0] += 0.1 * (target_zoom_center[0] - zoom_center[0]);
-        //     zoom_center[1] += 0.1 * (target_zoom_center[1] - zoom_center[1]);
-
-        //     // window.requestAnimationFrame(renderFrame);
-        // } else if (max_iterations < 500) {
-        //     /* once zoom operation is complete, bounce back to normal detail level */
-        //     max_iterations += 10;
-        //     // window.requestAnimationFrame(renderFrame);
-        // }
     }, [gl, program, camera, canvasWidth, canvasHeight]);
 
     // Resize the canvas when the window is resized
