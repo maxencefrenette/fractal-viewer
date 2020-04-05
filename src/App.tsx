@@ -8,21 +8,14 @@ function App() {
     const [canvasWidth, setCanvasWidth] = useState(window.innerWidth);
     const [canvasHeight, setCanvasHeight] = useState(window.innerHeight);
 
-    useEffect(() => {
-        window.onresize = () => {
-            setCanvasWidth(window.innerWidth);
-            setCanvasHeight(window.innerHeight);
-        };
-    });
-
     const canvas = React.createRef<HTMLCanvasElement>();
 
     const [gl, setGl] = useState<WebGLRenderingContext | null>(null);
     const [program, setProgram] = useState<WebGLProgram | null>(null);
 
     const [camera, setCamera] = useState({
-        zoom_center: [0.0, 0.0],
-        zoom_size: 4.0,
+        center: [0.0, 0.0],
+        zoom: 2.0,
     });
 
     useLayoutEffect(
@@ -81,17 +74,17 @@ function App() {
         if (!gl) return;
         if (!program) return;
 
-        const { zoom_center, zoom_size } = camera;
+        const { center, zoom } = camera;
 
-        const zoom_center_uniform = gl.getUniformLocation(
+        const cameraCenterUniform = gl.getUniformLocation(
             program,
-            'u_zoomCenter'
+            'cameraCenter'
         );
-        const zoom_size_uniform = gl.getUniformLocation(program, 'u_zoomSize');
+        const zoomUniform = gl.getUniformLocation(program, 'zoom');
 
         // Bind inputs & render frame
-        gl.uniform2f(zoom_center_uniform, zoom_center[0], zoom_center[1]);
-        gl.uniform1f(zoom_size_uniform, zoom_size);
+        gl.uniform2f(cameraCenterUniform, center[0], center[1]);
+        gl.uniform1f(zoomUniform, zoom);
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -117,6 +110,25 @@ function App() {
         //     // window.requestAnimationFrame(renderFrame);
         // }
     }, [gl, program, camera, canvasWidth, canvasHeight]);
+
+    // Resize the canvas when the window is resized
+    useEffect(() => {
+        window.onresize = () => {
+            setCanvasWidth(window.innerWidth);
+            setCanvasHeight(window.innerHeight);
+        };
+    });
+
+    // Zoom when scrolling
+    useEffect(() => {
+        window.onwheel = (e: WheelEvent) => {
+            const zoom = camera.zoom * Math.exp(0.0008 * e.deltaY);
+            setCamera({
+                ...camera,
+                zoom,
+            })
+        };
+    });
 
     return (
         <canvas width={canvasWidth} height={canvasHeight} ref={canvas}></canvas>
