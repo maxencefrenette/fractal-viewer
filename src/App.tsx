@@ -43,14 +43,14 @@ function App() {
             console.log(gl.getShaderInfoLog(vertexShader));
             gl.compileShader(fragmentShader);
             console.log(gl.getShaderInfoLog(fragmentShader));
-            var program = gl.createProgram()!;
+            const program = gl.createProgram()!;
             gl.attachShader(program, vertexShader);
             gl.attachShader(program, fragmentShader);
             gl.linkProgram(program);
             gl.useProgram(program);
 
             // Create a vertex buffer for a full-screen triangle
-            var vertexBuf = gl.createBuffer();
+            const vertexBuf = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuf);
             gl.bufferData(
                 gl.ARRAY_BUFFER,
@@ -59,7 +59,7 @@ function App() {
             );
 
             // Set up the position attribute
-            var position_attrib_location = gl.getAttribLocation(
+            const position_attrib_location = gl.getAttribLocation(
                 program,
                 'a_Position'
             );
@@ -76,28 +76,28 @@ function App() {
             setGl(gl);
             setProgram(program);
         },
-        [
-            /* Empty dependency array to only run the hook once */
-        ]
+        // Empty dependency array to only run the hook once
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        []
     );
 
     useLayoutEffect(() => {
         if (!gl) return;
         if (!program) return;
 
-        let { zoom_center, zoom_size, max_iterations } = camera;
+        const { zoom_center, zoom_size, max_iterations } = camera;
 
-        var zoom_center_uniform = gl.getUniformLocation(
+        const zoom_center_uniform = gl.getUniformLocation(
             program,
             'u_zoomCenter'
         );
-        var zoom_size_uniform = gl.getUniformLocation(program, 'u_zoomSize');
-        var max_iterations_uniform = gl.getUniformLocation(
+        const zoom_size_uniform = gl.getUniformLocation(program, 'u_zoomSize');
+        const max_iterations_uniform = gl.getUniformLocation(
             program,
             'u_maxIterations'
         );
 
-        /* bind inputs & render frame */
+        // Bind inputs & render frame
         gl.uniform2f(zoom_center_uniform, zoom_center[0], zoom_center[1]);
         gl.uniform1f(zoom_size_uniform, zoom_size);
         gl.uniform1i(max_iterations_uniform, max_iterations);
