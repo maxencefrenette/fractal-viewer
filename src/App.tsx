@@ -1,4 +1,4 @@
-import React, { useLayoutEffect } from 'react';
+import React, { useLayoutEffect, useState } from 'react';
 import raw from 'raw.macro';
 
 const vertexShaderSource = raw('./vertex-shader.glsl');
@@ -7,41 +7,49 @@ const fragmentShaderSource = raw('./fragment-shader.glsl');
 function App() {
     const canvas = React.createRef<HTMLCanvasElement>();
 
+    const [gl, setGl] = useState<WebGLRenderingContext | null>(null);
+    const [program, setProgram] = useState<WebGLProgram | null>(null);
+
+    const [camera, setCamera] = useState({
+        zoom_center: [0.0, 0.0],
+        target_zoom_center: [0.0, 0.0],
+        zoom_size: 4.0,
+        stop_zooming: true,
+        zoom_factor: 1.0,
+        max_iterations: 500,
+    });
+
     useLayoutEffect(() => {
         const gl = canvas.current?.getContext('webgl');
         if (!gl) throw new Error("Couldn't get canvas context");
 
-        // const vertexShader = compileShader(gl, vertexShaderSource, gl.VERTEX_SHADER);
-        // const fragmentShader = compileShader(gl, fragmentShaderSource, gl.FRAGMENT_SHADER);
-        // const program = createProgram(gl, vertexShader, fragmentShader);
+        // Compile and link shaders
+        const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+        gl.shaderSource(vertexShader, vertexShaderSource);
+        gl.shaderSource(fragmentShader, fragmentShaderSource);
+        gl.compileShader(vertexShader);
+        console.log(gl.getShaderInfoLog(vertexShader));
+        gl.compileShader(fragmentShader);
+        console.log(gl.getShaderInfoLog(fragmentShader));
+        var program = gl.createProgram()!;
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        gl.useProgram(program);
 
-        /* compile and link shaders */
-        var vertex_shader = gl.createShader(gl.VERTEX_SHADER)!;
-        var fragment_shader = gl.createShader(gl.FRAGMENT_SHADER)!;
-        gl.shaderSource(vertex_shader, vertexShaderSource);
-        gl.shaderSource(fragment_shader, fragmentShaderSource);
-        gl.compileShader(vertex_shader);
-        console.log(gl.getShaderInfoLog(vertex_shader));
-        gl.compileShader(fragment_shader);
-        console.log(gl.getShaderInfoLog(fragment_shader));
-        var mandelbrot_program = gl.createProgram()!;
-        gl.attachShader(mandelbrot_program, vertex_shader);
-        gl.attachShader(mandelbrot_program, fragment_shader);
-        gl.linkProgram(mandelbrot_program);
-        gl.useProgram(mandelbrot_program);
-
-        /* create a vertex buffer for a full-screen triangle */
-        var vertex_buf = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertex_buf);
+        // Create a vertex buffer for a full-screen triangle
+        var vertexBuf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuf);
         gl.bufferData(
             gl.ARRAY_BUFFER,
             new Float32Array([-1, -1, 3, -1, -1, 3]),
             gl.STATIC_DRAW
         );
 
-        /* set up the position attribute */
+        // Set up the position attribute
         var position_attrib_location = gl.getAttribLocation(
-            mandelbrot_program,
+            program,
             'a_Position'
         );
         gl.enableVertexAttribArray(position_attrib_location);
@@ -54,63 +62,59 @@ function App() {
             0
         );
 
-        /* find uniform locations */
+        setGl(gl);
+        setProgram(program);
+    }, [/* Empty dependency array to only run the hook once */]);
+
+    useLayoutEffect(() => {
+        if (!gl) return;
+        if (!program) return;
+
+        let {
+            zoom_center,
+            zoom_size,
+            max_iterations,
+        } = camera;
+
         var zoom_center_uniform = gl.getUniformLocation(
-            mandelbrot_program,
+            program,
             'u_zoomCenter'
         );
-        var zoom_size_uniform = gl.getUniformLocation(
-            mandelbrot_program,
-            'u_zoomSize'
-        );
+        var zoom_size_uniform = gl.getUniformLocation(program, 'u_zoomSize');
         var max_iterations_uniform = gl.getUniformLocation(
-            mandelbrot_program,
+            program,
             'u_maxIterations'
         );
 
-        /* these hold the state of zoom operation */
-        var zoom_center = [0.0, 0.0];
-        var target_zoom_center = [0.0, 0.0];
-        var zoom_size = 4.0;
-        var stop_zooming = true;
-        var zoom_factor = 1.0;
-        var max_iterations = 500;
+        /* bind inputs & render frame */
+        gl.uniform2f(zoom_center_uniform, zoom_center[0], zoom_center[1]);
+        gl.uniform1f(zoom_size_uniform, zoom_size);
+        gl.uniform1i(max_iterations_uniform, max_iterations);
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
 
-        var renderFrame = function () {
-            /* bind inputs & render frame */
-            gl.uniform2f(zoom_center_uniform, zoom_center[0], zoom_center[1]);
-            gl.uniform1f(zoom_size_uniform, zoom_size);
-            gl.uniform1i(max_iterations_uniform, max_iterations);
-            gl.clearColor(0.0, 0.0, 0.0, 1.0);
-            gl.clear(gl.COLOR_BUFFER_BIT);
-            gl.drawArrays(gl.TRIANGLES, 0, 3);
+        // /* handle zoom */
+        // if (!stop_zooming) {
+        //     /* zooming in progress */
+        //     /* gradually decrease number of iterations, reducing detail, to speed up rendering */
+        //     max_iterations -= 10;
+        //     if (max_iterations < 50) max_iterations = 50;
 
-            /* handle zoom */
-            if (!stop_zooming) {
-                /* zooming in progress */
-                /* gradually decrease number of iterations, reducing detail, to speed up rendering */
-                max_iterations -= 10;
-                if (max_iterations < 50) max_iterations = 50;
+        //     /* zoom in */
+        //     zoom_size *= zoom_factor;
 
-                /* zoom in */
-                zoom_size *= zoom_factor;
+        //     /* move zoom center towards target */
+        //     zoom_center[0] += 0.1 * (target_zoom_center[0] - zoom_center[0]);
+        //     zoom_center[1] += 0.1 * (target_zoom_center[1] - zoom_center[1]);
 
-                /* move zoom center towards target */
-                zoom_center[0] +=
-                    0.1 * (target_zoom_center[0] - zoom_center[0]);
-                zoom_center[1] +=
-                    0.1 * (target_zoom_center[1] - zoom_center[1]);
-
-                window.requestAnimationFrame(renderFrame);
-            } else if (max_iterations < 500) {
-                /* once zoom operation is complete, bounce back to normal detail level */
-                max_iterations += 10;
-                window.requestAnimationFrame(renderFrame);
-            }
-        };
-
-        renderFrame();
-    }, [canvas]);
+        //     // window.requestAnimationFrame(renderFrame);
+        // } else if (max_iterations < 500) {
+        //     /* once zoom operation is complete, bounce back to normal detail level */
+        //     max_iterations += 10;
+        //     // window.requestAnimationFrame(renderFrame);
+        // }
+    }, [gl, program, camera]);
 
     return (
         <div>
