@@ -1,6 +1,7 @@
 import React, { useLayoutEffect, useState, useEffect } from 'react';
 import raw from 'raw.macro';
 import panzoom from 'pan-zoom';
+import { mat2d, mat3 } from 'gl-matrix';
 
 const vertexShaderSource = raw('./vertex-shader.vert');
 const fragmentShaderSource = raw('./fragment-shader.frag');
@@ -14,9 +15,13 @@ function App() {
     const [gl, setGl] = useState<WebGLRenderingContext | null>(null);
     const [program, setProgram] = useState<WebGLProgram | null>(null);
 
-    const [camera, setCamera] = useState({
-        center: [-2, -1],
-        zoom: 2 / Math.min(canvasWidth, canvasHeight),
+    const [camera, setCamera] = useState(() => {
+        let camera = mat2d.create();
+        mat2d.translate(camera, camera, [-2, -1]);
+        const zoom = 2 / Math.min(canvasWidth, canvasHeight);
+        mat2d.scale(camera, camera, [zoom, zoom]);
+
+        return camera;
     });
 
     // Initialize webgl
@@ -80,17 +85,14 @@ function App() {
         // Resize viewport in case the window was resized
         gl.viewport(0, 0, canvasWidth, canvasHeight);
 
-        const { center, zoom } = camera;
-
-        const cameraCenterUniform = gl.getUniformLocation(
-            program,
-            'cameraCenter'
-        );
-        const zoomUniform = gl.getUniformLocation(program, 'zoom');
+        const cameraUniform = gl.getUniformLocation(program, 'camera');
 
         // Bind inputs & render frame
-        gl.uniform2f(cameraCenterUniform, center[0], center[1]);
-        gl.uniform1f(zoomUniform, zoom);
+        gl.uniformMatrix3fv(
+            cameraUniform,
+            false,
+            mat3.fromMat2d(mat3.create(), camera)
+        );
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
@@ -107,15 +109,16 @@ function App() {
     useEffect(
         () =>
             panzoom(canvas.current!, (e) => {
-                setCamera(camera => {
-                    let { center: [centerX, centerY], zoom } = camera;
-    
-                    centerX -= e.dx * zoom;
-                    centerY += e.dy * zoom;
-                    zoom *= Math.exp(0.001 * e.dz);
-    
-                    return { center: [centerX, centerY], zoom };
-                })
+                setCamera((oldCamera) => {
+                    let camera = mat2d.clone(oldCamera);
+
+                    mat2d.translate(camera, camera, [-e.dx, e.dy]); // TODO: edit matrix to get rid of the minus sign
+
+                    const zoom = Math.exp(0.001 * e.dz);
+                    mat2d.scale(camera, camera, [zoom, zoom]);
+
+                    return camera;
+                });
             }),
         // eslint-disable-next-line react-hooks/exhaustive-deps
         []

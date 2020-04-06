@@ -2,11 +2,8 @@ precision highp float;
 
 const int maxIterations = 500;
 
-// The coordinates (in the fractal's coordinate space) of the camera center
-uniform vec2 cameraCenter;
-
-// The zoom ratio
-uniform float zoom;
+// The matrix that defines the transform from screen-space to world-space
+uniform mat3 camera;
 
 // The Maldelbrot iteration function
 vec2 f(vec2 x, vec2 c) {
@@ -15,7 +12,7 @@ vec2 f(vec2 x, vec2 c) {
 
 // Converts from the viewport space to the fractal space
 vec2 viewportToFractal(vec2 viewportCoord) {
-  return cameraCenter + (viewportCoord - vec2(0.5)) * zoom;
+  return (camera * vec3(viewportCoord, 1)).xy;
 }
 
 vec3 palette(float t, vec3 a, vec3 b, vec3 c, vec3 d) {

@@ -10,6 +10,7 @@
         "@types/node": "^12.0.0",
         "@types/react": "^16.9.0",
         "@types/react-dom": "^16.9.0",
+        "gl-matrix": "^3.3.0",
         "gl-util": "^3.1.2",
         "pan-zoom": "^3.5.0",
         "react": "^16.13.1",
@@ -18,6 +19,7 @@
         "typescript": "~3.7.2"
     },
     "devDependencies": {
+        "@types/gl-matrix": "^2.4.5",
         "raw.macro": "^0.3.0"
     },
     "scripts": {
