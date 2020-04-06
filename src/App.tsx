@@ -77,6 +77,9 @@ function App() {
         if (!gl) return;
         if (!program) return;
 
+        // Resize viewport in case the window was resized
+        gl.viewport(0, 0, canvasWidth, canvasHeight);
+
         const { center, zoom } = camera;
 
         const cameraCenterUniform = gl.getUniformLocation(
