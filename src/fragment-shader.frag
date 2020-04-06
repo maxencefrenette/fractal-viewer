@@ -1,6 +1,6 @@
 precision highp float;
 
-const int maxIterations = 500;
+const int maxIterations = 1000;
 
 // The matrix that defines the transform from screen-space to world-space
 uniform mat3 camera;
