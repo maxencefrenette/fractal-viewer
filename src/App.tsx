@@ -7,8 +7,12 @@ const vertexShaderSource = raw('./vertex-shader.vert');
 const fragmentShaderSource = raw('./fragment-shader.frag');
 
 function App() {
-    const [canvasWidth, setCanvasWidth] = useState(window.innerWidth);
-    const [canvasHeight, setCanvasHeight] = useState(window.innerHeight);
+    const [canvasWidth, setCanvasWidth] = useState(
+        window.innerWidth * window.devicePixelRatio
+    );
+    const [canvasHeight, setCanvasHeight] = useState(
+        window.innerHeight * window.devicePixelRatio
+    );
 
     const canvas = React.createRef<HTMLCanvasElement>();
 
@@ -101,8 +105,8 @@ function App() {
     // Resize the canvas when the window is resized
     useEffect(() => {
         window.onresize = () => {
-            setCanvasWidth(window.innerWidth);
-            setCanvasHeight(window.innerHeight);
+            setCanvasWidth(window.innerWidth * window.devicePixelRatio);
+            setCanvasHeight(window.innerHeight * window.devicePixelRatio);
         };
     });
 
@@ -113,13 +117,22 @@ function App() {
                     let camera = mat2d.clone(oldCamera);
 
                     // Pan
-                    mat2d.translate(camera, camera, [-e.dx, e.dy]);
+                    mat2d.translate(camera, camera, [
+                        -e.dx * window.devicePixelRatio,
+                        e.dy * devicePixelRatio,
+                    ]);
 
                     // Zoom
                     const zoom = Math.exp(0.001 * e.dz);
-                    mat2d.translate(camera, camera, [e.x, canvasHeight - e.y]);
+                    mat2d.translate(camera, camera, [
+                        e.x * window.devicePixelRatio,
+                        canvasHeight - e.y * window.devicePixelRatio,
+                    ]);
                     mat2d.scale(camera, camera, [zoom, zoom]);
-                    mat2d.translate(camera, camera, [-e.x, e.y - canvasHeight]);
+                    mat2d.translate(camera, camera, [
+                        -e.x * window.devicePixelRatio,
+                        e.y * window.devicePixelRatio - canvasHeight,
+                    ]);
 
                     return camera;
                 });
@@ -129,7 +142,12 @@ function App() {
     );
 
     return (
-        <canvas width={canvasWidth} height={canvasHeight} ref={canvas}></canvas>
+        <canvas
+            width={canvasWidth}
+            height={canvasHeight}
+            ref={canvas}
+            style={{ width: '100vw', height: '100vh' }}
+        ></canvas>
     );
 }
 
