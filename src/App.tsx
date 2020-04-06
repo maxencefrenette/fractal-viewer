@@ -18,6 +18,7 @@ function App() {
 
     const [gl, setGl] = useState<WebGLRenderingContext | null>(null);
     const [program, setProgram] = useState<WebGLProgram | null>(null);
+    const [cameraUniform, setCameraUniform] = useState<WebGLUniformLocation  | null>(null);
 
     const [camera, setCamera] = useState(() => {
         let camera = mat2d.create();
@@ -75,6 +76,7 @@ function App() {
 
             setGl(gl);
             setProgram(program);
+            setCameraUniform(gl.getUniformLocation(program, 'camera'));
         },
         // Empty dependency array to only run the hook once
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -89,8 +91,6 @@ function App() {
         // Resize viewport in case the window was resized
         gl.viewport(0, 0, canvasWidth, canvasHeight);
 
-        const cameraUniform = gl.getUniformLocation(program, 'camera');
-
         // Bind inputs & render frame
         gl.uniformMatrix3fv(
             cameraUniform,
@@ -100,7 +100,7 @@ function App() {
         gl.clearColor(0.0, 0.0, 0.0, 1.0);
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
-    }, [gl, program, camera, canvasWidth, canvasHeight]);
+    }, [gl, program, cameraUniform, camera, canvasWidth, canvasHeight]);
 
     // Resize the canvas when the window is resized
     useEffect(() => {
