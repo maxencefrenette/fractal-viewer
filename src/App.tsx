@@ -112,10 +112,14 @@ function App() {
                 setCamera((oldCamera) => {
                     let camera = mat2d.clone(oldCamera);
 
-                    mat2d.translate(camera, camera, [-e.dx, e.dy]); // TODO: edit matrix to get rid of the minus sign
+                    // Pan
+                    mat2d.translate(camera, camera, [-e.dx, e.dy]);
 
+                    // Zoom
                     const zoom = Math.exp(0.001 * e.dz);
+                    mat2d.translate(camera, camera, [e.x, canvasHeight - e.y]);
                     mat2d.scale(camera, camera, [zoom, zoom]);
+                    mat2d.translate(camera, camera, [-e.x, e.y - canvasHeight]);
 
                     return camera;
                 });
