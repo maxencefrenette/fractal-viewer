@@ -79,10 +79,6 @@ function App() {
 
         const { center, zoom } = camera;
 
-        const viewportSizeUniform = gl.getUniformLocation(
-            program,
-            'viewportSize'
-        );
         const cameraCenterUniform = gl.getUniformLocation(
             program,
             'cameraCenter'
@@ -90,7 +86,6 @@ function App() {
         const zoomUniform = gl.getUniformLocation(program, 'zoom');
 
         // Bind inputs & render frame
-        gl.uniform1f(viewportSizeUniform, Math.min(canvasWidth, canvasHeight));
         gl.uniform2f(cameraCenterUniform, center[0], center[1]);
         gl.uniform1f(zoomUniform, zoom);
         gl.clearColor(0.0, 0.0, 0.0, 1.0);

@@ -2,9 +2,6 @@ precision highp float;
 
 const int maxIterations = 500;
 
-// min(viewportWidth, viewportHeight)
-uniform float viewportSize;
-
 // The coordinates (in the fractal's coordinate space) of the camera center
 uniform vec2 cameraCenter;
 
