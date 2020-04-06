@@ -17,8 +17,8 @@ function App() {
 
     const [camera, setCamera] = useState(() => {
         let camera = mat2d.create();
-        mat2d.translate(camera, camera, [-2, -1]);
-        const zoom = 2 / Math.min(canvasWidth, canvasHeight);
+        mat2d.translate(camera, camera, [-2.4, -1.1]);
+        const zoom = 2.2 / Math.min(canvasWidth, canvasHeight);
         mat2d.scale(camera, camera, [zoom, zoom]);
 
         return camera;
