@@ -11,6 +11,7 @@
         "@types/react": "^16.9.0",
         "@types/react-dom": "^16.9.0",
         "gl-util": "^3.1.2",
+        "pan-zoom": "^3.5.0",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",
         "react-scripts": "3.4.1",

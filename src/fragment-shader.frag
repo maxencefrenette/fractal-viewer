@@ -18,8 +18,7 @@ vec2 f(vec2 x, vec2 c) {
 
 // Converts from the viewport space to the fractal space
 vec2 viewportToFractal(vec2 viewportCoord) {
-  vec2 uv = viewportCoord / viewportSize;
-  return cameraCenter + (uv - vec2(0.5)) * zoom;
+  return cameraCenter + (viewportCoord - vec2(0.5)) * zoom;
 }
 
 vec3 palette(float t, vec3 a, vec3 b, vec3 c, vec3 d) {

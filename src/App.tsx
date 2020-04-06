@@ -1,5 +1,6 @@
 import React, { useLayoutEffect, useState, useEffect } from 'react';
 import raw from 'raw.macro';
+import panzoom from 'pan-zoom';
 
 const vertexShaderSource = raw('./vertex-shader.vert');
 const fragmentShaderSource = raw('./fragment-shader.frag');
@@ -14,8 +15,8 @@ function App() {
     const [program, setProgram] = useState<WebGLProgram | null>(null);
 
     const [camera, setCamera] = useState({
-        center: [0.0, 0.0],
-        zoom: 2.0,
+        center: [-2, -1],
+        zoom: 2 / Math.min(canvasWidth, canvasHeight),
     });
 
     // Initialize webgl
@@ -70,7 +71,7 @@ function App() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
         []
     );
-    
+
     // Redraw the fractal when something changed
     useLayoutEffect(() => {
         if (!gl) return;
@@ -105,16 +106,22 @@ function App() {
         };
     });
 
-    // Zoom when scrolling
-    useEffect(() => {
-        window.onwheel = (e: WheelEvent) => {
-            const zoom = camera.zoom * Math.exp(0.0008 * e.deltaY);
-            setCamera({
-                ...camera,
-                zoom,
-            })
-        };
-    });
+    useEffect(
+        () =>
+            panzoom(canvas.current!, (e) => {
+                setCamera(camera => {
+                    let { center: [centerX, centerY], zoom } = camera;
+    
+                    centerX -= e.dx * zoom;
+                    centerY += e.dy * zoom;
+                    zoom *= Math.exp(0.001 * e.dz);
+    
+                    return { center: [centerX, centerY], zoom };
+                })
+            }),
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        []
+    );
 
     return (
         <canvas width={canvasWidth} height={canvasHeight} ref={canvas}></canvas>
