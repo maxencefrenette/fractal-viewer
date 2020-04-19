@@ -6,11 +6,11 @@ set using WebGL. Based on
 
 ## Features
 
--   GPU-accelerated rendering using WebGL
--   Panning and zooming with a mouse or a touchscreen
--   Support for high-DPI screens
+- GPU-accelerated rendering using WebGL
+- Panning and zooming with a mouse or a touchscreen
+- Support for high-DPI screens
 
 ## Limitations
 
--   Zooming doesn't perfectly follow the fingers on touchscreens
--   The float precision is quickly reached when zooming
+- Zooming doesn't perfectly follow the fingers on touchscreens
+- The float precision is quickly reached when zooming
