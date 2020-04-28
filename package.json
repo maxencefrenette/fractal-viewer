@@ -51,7 +51,7 @@
       "prettier --write",
       "git add"
     ],
-    "*.{json,yaml,md,mdx}": [
+    "*.{json,yml,md,mdx}": [
       "prettier --write",
       "git add"
     ]
