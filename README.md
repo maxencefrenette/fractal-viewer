@@ -1,6 +1,7 @@
 # Fractal Viewer
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/36da7742-415f-4f65-a382-2047fe7cbd4d/deploy-status)](https://app.netlify.com/sites/fractal-viewer/deploys)
+[![Dependabot Status](https://api.dependabot.com/badges/status?host=github&repo=maxencefrenette/fractal-viewer)](https://dependabot.com)
 
 A simple fractal viewer I made as a weekend project. Displays the manldelbrot
 set using WebGL. Based on
